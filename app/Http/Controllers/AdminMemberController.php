@@ -6,16 +6,17 @@ use Illuminate\Http\Request;
 use App\Models\User; // Mengelola model User
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth; // TAMBAHKAN INI
 
 class AdminMemberController extends Controller
 {
     // Menampilkan daftar semua anggota
     public function index()
-{
-    // Ambil semua user yang BUKAN admin
-    $members = User::where('is_admin', false)->get();
-    return view('admin.members.index', compact('members'));
-}
+    {
+        // Ambil semua user yang BUKAN admin
+        $members = User::where('is_admin', false)->get();
+        return view('admin.members.index', compact('members'));
+    }
 
     // Menampilkan form edit anggota
     public function edit(User $member)
@@ -40,7 +41,6 @@ class AdminMemberController extends Controller
         if ($request->filled('profile_photo_path')) {
             $data['profile_photo_path'] = $request->profile_photo_path; // Ini hanya untuk path manual, untuk upload file perlu logic lebih lanjut
         }
-
 
         $member->update($data);
 

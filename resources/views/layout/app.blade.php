@@ -37,22 +37,37 @@
             <li style="margin-top:12px"><a href="{{ route('about') }}">About</a></li>
             <li style="margin-top:12px"><a href="{{ route('services') }}">Services</a></li>
             @auth
-                <li class="user-profile-nav">
-                    <div class="user-profile" id="profileDropdownToggle">
-                        {{-- Menggunakan foto profil jika ada, default jika tidak --}}
-                        <img src="{{ Auth::user()->profile_photo_path ? asset('storage/' . Auth::user()->profile_photo_path) : asset('images/default_profile.png') }}" alt="Profile" class="profile-icon-img">
-                        <span class="profile-name">{{ Auth::user()->name }}</span>
-                        <i class="fas fa-caret-down" style="margin-left: 5px; color: #ffd54f;"></i>
-                    </div>
-                    <div class="dropdown-menu" id="profileDropdownMenu">
-                        <ul>
-                            <li><a href="/profile-detail"><i class="fas fa-id-card"></i> Detail Profil</a></li>
-                            <li><a href="/my-tickets"><i class="fas fa-ticket-alt"></i> Tiket Saya</a></li>
-                            <li><a href="/sesi/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                        </ul>
-                    </div>
-                </li>
-            @else
+    <li class="user-profile-nav">
+        <div class="user-profile" id="profileDropdownToggle">
+            {{-- Menggunakan foto profil jika ada, default jika tidak --}}
+            @php
+                // Force refresh dari database
+                $currentUser = \App\Models\User::find(Auth::id());
+                $photoPath = $currentUser->profile_photo_path;
+                
+                // Generate URL dengan cache busting
+                if ($photoPath && \Storage::disk('public')->exists($photoPath)) {
+                    $profilePhotoUrl = asset('storage/' . $photoPath) . '?v=' . time();
+                } else {
+                    $profilePhotoUrl = asset('images/default_profile.png');
+                }
+            @endphp
+            <img src="{{ $profilePhotoUrl }}" 
+                 alt="Profile" 
+                 class="profile-icon-img"
+                 onerror="console.error('Navbar image error:', this.src); this.src='{{ asset('images/default_profile.png') }}'">
+            <span class="profile-name">{{ Auth::user()->name }}</span>
+            <i class="fas fa-caret-down" style="margin-left: 5px; color: #ffd54f;"></i>
+        </div>
+        <div class="dropdown-menu" id="profileDropdownMenu">
+            <ul>
+                <li><a href="/profile-detail"><i class="fas fa-id-card"></i> Detail Profil</a></li>
+                <li><a href="/my-tickets"><i class="fas fa-ticket-alt"></i> Tiket Saya</a></li>
+                <li><a href="/sesi/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </li>
+@else
                 <li  style="margin-top:12px"><a href="/sesi/signup">Daftar</a></li>
                 <li  style="margin-top:12px"><a href="/sesi">Login</a></li>
             @endauth
